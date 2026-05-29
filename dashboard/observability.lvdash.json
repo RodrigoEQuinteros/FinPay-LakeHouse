@@ -1,0 +1,492 @@
+{
+  "datasets": [
+    {
+      "name": "41333aed",
+      "displayName": "finpay_event_log_dev",
+      "config": {
+        "version": "1.1",
+        "source": "fintech_finpay.observability.finpay_event_log_dev",
+        "dimensions": [
+          {
+            "name": "id",
+            "expr": "source.id",
+            "displayName": "Id"
+          },
+          {
+            "name": "sequence",
+            "expr": "source.sequence",
+            "displayName": "Sequence"
+          },
+          {
+            "name": "origin",
+            "expr": "source.origin",
+            "displayName": "Origin"
+          },
+          {
+            "name": "timestamp",
+            "expr": "source.timestamp",
+            "displayName": "Timestamp"
+          },
+          {
+            "name": "message",
+            "expr": "source.message",
+            "displayName": "Message"
+          },
+          {
+            "name": "level",
+            "expr": "source.level",
+            "displayName": "Level"
+          },
+          {
+            "name": "maturity_level",
+            "expr": "source.maturity_level",
+            "displayName": "Maturity Level"
+          },
+          {
+            "name": "error",
+            "expr": "source.error",
+            "displayName": "Error"
+          },
+          {
+            "name": "details",
+            "expr": "source.details",
+            "displayName": "Details"
+          },
+          {
+            "name": "event_type",
+            "expr": "source.event_type",
+            "displayName": "Event Type"
+          }
+        ],
+        "measures": [
+          {
+            "name": "count",
+            "expr": "COUNT(*)",
+            "comment": "Represents the total number of rows in the dataset. Use this measure to count all",
+            "displayName": "Count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "7d2c7bd9",
+      "displayName": "fintech_finpay",
+      "queryLines": [
+        "SELECT \r\n",
+        "    timestamp,\r\n",
+        "    origin.pipeline_name AS pipeline,\r\n",
+        "    level AS nivel_log,\r\n",
+        "    message,\r\n",
+        "    -- Aquí abrimos el paquete JSON para sacar las filas procesadas:\r\n",
+        "    CAST(details:flow_progress.metrics.num_output_rows AS INT) AS filas_procesadas,\r\n",
+        "    details:flow_progress.status AS estado_flujo\r\n",
+        "FROM fintech_finpay.observability.finpay_event_log_dev\r\n",
+        "WHERE details:flow_progress.status IS NOT NULL\r\n",
+        "ORDER BY timestamp DESC;"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "29779a92",
+      "displayName": "Global Filters",
+      "pageType": "PAGE_TYPE_GLOBAL_FILTERS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "920c0b8d",
+      "displayName": "observability.lvdash.json",
+      "layout": [
+        {
+          "widget": {
+            "name": "filas-procesadas-por",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "7d2c7bd9",
+                  "fields": [
+                    {
+                      "name": "minutely(timestamp)",
+                      "expression": "DATE_TRUNC(\"MINUTE\", `timestamp`)"
+                    },
+                    {
+                      "name": "filas_procesadas",
+                      "expression": "`filas_procesadas`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Filas Procesadas por Tiempo"
+              },
+              "mark": {
+                "colors": [
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 3
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 2
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 3
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 4
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 5
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 6
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 7
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 8
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 9
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 10
+                  }
+                ]
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "minutely(timestamp)",
+                  "displayName": "Minutos",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "fieldName": "filas_procesadas",
+                  "displayName": "Filas Procesadas",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "e8",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "7d2c7bd9",
+                  "fields": [
+                    {
+                      "name": "countdistinct(nivel_log)",
+                      "expression": "COUNT(DISTINCT `nivel_log`)"
+                    },
+                    {
+                      "name": "estado_flujo",
+                      "expression": "`estado_flujo`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "mark": {
+                "colors": [
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 5
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 2
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 3
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 4
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 5
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 6
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 7
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 8
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 9
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 10
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Proporcion respecto al estado de flujo"
+              },
+              "widgetType": "pie",
+              "encodings": {
+                "angle": {
+                  "fieldName": "countdistinct(nivel_log)",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "Cantidad de Log"
+                },
+                "label": {
+                  "show": true
+                },
+                "extra": [
+                  {
+                    "fieldName": "estado_flujo"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 6,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "b7d9ad8f",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "7d2c7bd9",
+                  "fields": [
+                    {
+                      "name": "count(filas_procesadas)",
+                      "expression": "COUNT(`filas_procesadas`)"
+                    },
+                    {
+                      "name": "message",
+                      "expression": "`message`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "mark": {
+                "colors": [
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 3
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 2
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 3
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 4
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 5
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 6
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 7
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 8
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 9
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 10
+                  }
+                ]
+              },
+              "widgetType": "pie",
+              "encodings": {
+                "angle": {
+                  "fieldName": "count(filas_procesadas)",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "Cantidad de Filas Procesadas"
+                },
+                "label": {
+                  "show": true
+                },
+                "extra": [
+                  {
+                    "fieldName": "message"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 0,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "555937bc",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "7d2c7bd9",
+                  "fields": [
+                    {
+                      "name": "secondly(timestamp)",
+                      "expression": "DATE_TRUNC(\"SECOND\", `timestamp`)"
+                    }
+                  ],
+                  "disaggregated": false,
+                  "orders": [
+                    {
+                      "direction": "DESC",
+                      "expression": "DATE_TRUNC(\"SECOND\", `timestamp`)"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "period": {
+                  "fieldName": "secondly(timestamp)"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 6,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "ad21df2d",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "7d2c7bd9",
+                  "fields": [
+                    {
+                      "name": "message",
+                      "expression": "`message`"
+                    },
+                    {
+                      "name": "estado_flujo",
+                      "expression": "`estado_flujo`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "heatmap",
+              "encodings": {
+                "x": {
+                  "fieldName": "message",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "estado_flujo",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 8,
+            "width": 6,
+            "height": 5
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}
