@@ -37,7 +37,7 @@ targets:
   prod:
     mode: production
     workspace:
-      host: "https://adb-7405605058022208.8.azuredatabricks.net/settings/user/developer/access-tokens?o=7405605058022208"
+      root_path: /Workspace/Users/rodrigo_sk22@hotmail.com/.bundle/${bundle.name}/${bundle.target}
     variables:
       alert_email: "rodrigo_sk22@hotmail.com" 
       schedule_pause_status: "UNPAUSED" 
