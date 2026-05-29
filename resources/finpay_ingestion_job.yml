@@ -1,0 +1,47 @@
+# =============================================================
+# resources/finpay_ingestion_job.yml
+# Job 1: Pipeline ETL
+# Orquesta el pipeline DLT y dispara el modelo semántico
+# =============================================================
+
+resources:
+  jobs:
+    finpay_ingestion_job:
+      name: finpay_ingestion_job_${bundle.target}
+      description: "Job 1: Orquesta la ingesta Bronze -> Silver -> Gold"
+
+      # Evita que se ejecuten múltiples instancias al mismo tiempo
+      max_concurrent_runs: 1
+
+      # ── Notificaciones ──
+      # Usa el correo que configuraste en tu databricks.yml
+      email_notifications:
+        on_failure:
+          - ${var.alert_email}
+        on_success:
+          - ${var.alert_email}
+
+      # ── Programación (Schedule) ──
+      schedule:
+        quartz_cron_expression: "0 0 6 * * ?" # Todos los días a las 6:00 AM
+        timezone_id: "America/Lima"
+        pause_status: ${var.schedule_pause_status}
+
+      # ── Tareas del Job ──
+      tasks:
+        # Tarea A: Ejecutar el pipeline ETL que creamos en el paso anterior
+        - task_key: run_etl_pipeline
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.finpay_etl_pipeline.id}
+            full_refresh: false
+          retry_on_timeout: true
+          max_retries: 2
+          min_retry_interval_millis: 300000 # Espera 5 minutos antes de reintentar
+
+        # Tarea B: Disparar el Job 2 (Modelo Semántico)
+        # Solo se ejecuta si "run_etl_pipeline" termina con éxito
+        - task_key: trigger_semantic_refresh
+          depends_on:
+            - task_key: run_etl_pipeline
+          run_job_task:
+            job_id: ${resources.jobs.finpay_semantic_job.id}

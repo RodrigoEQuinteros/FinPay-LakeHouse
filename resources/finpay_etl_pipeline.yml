@@ -1,0 +1,51 @@
+# =============================================================
+# resources/finpay_etl_pipeline.yml
+# Lakeflow Declarative Pipeline: Bronze -> Silver -> Gold
+# =============================================================
+
+resources:
+  pipelines:
+    finpay_etl_pipeline:
+      # El nombre cambiará dinámicamente según si estás en dev o prod
+      name: finpay_etl_pipeline_${bundle.target}
+      catalog: "fintech_finpay" 
+      target: "default"
+
+      # ── Observabilidad ──
+      # Redirige los logs de eventos al esquema correcto según la rúbrica
+      event_log:
+        catalog: fintech_finpay
+        schema: observability
+        name: finpay_event_log_${bundle.target}
+
+      # ── Archivos Fuente del Pipeline ──
+      libraries:
+        - file:
+            path: ../src/utils.py
+        - file:
+            path: ../src/bronze.py
+        - file:
+            path: ../src/silver.py
+        - file:
+            path: ../src/gold.py
+
+      # Modo batch con trigger availableNow (exigido en la rúbrica)
+      continuous: false
+      
+      # Computo serverless (recomendado para evitar configurar clusters manualmente)
+      serverless: true
+
+      # ── Parámetros Dinámicos (Clave para el Reto 1) ──
+      configuration:
+        catalog_name: fintech_finpay
+        landing_zone_path: /Volumes/fintech_finpay/default/vol_landing
+        archetypes_path: /Volumes/fintech_finpay/default/vol_landing/metadata/ingestion_archetypes.json
+
+      # ── Notificaciones ──
+      # Toma el correo que configuraste en tu databricks.yml
+      notifications:
+        - email_recipients:
+            - ${var.alert_email}
+          alerts:
+            - on-update-failure
+            - on-update-fatal-failure

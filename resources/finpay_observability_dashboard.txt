@@ -1,0 +1,17 @@
+# =============================================================
+# resources/finpay_observability_dashboard.yml
+# Dashboard AI/BI de Observabilidad
+# Despliega el archivo .lvdash.json exportado
+# =============================================================
+
+resources:
+  dashboards:
+    finpay_observability_dashboard:
+      # El título del dashboard cambiará según el entorno (dev o prod)
+      display_name: "FinPay - Observabilidad [${bundle.target}]"
+      
+      # Utiliza el motor SQL que configuraste en tu databricks.yml
+      warehouse_id: ${var.sql_warehouse_id}
+      
+      # Cumple la rúbrica apuntando al archivo exportado en la carpeta correcta
+      file_path: ../dashboard/observability.lvdash.json

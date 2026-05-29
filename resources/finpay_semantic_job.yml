@@ -1,0 +1,34 @@
+# =============================================================
+# resources/finpay_semantic_job.yml
+# Job 2: Modelo Semántico
+# Refresca las vistas materializadas. Es disparado por el Job 1.
+# =============================================================
+
+resources:
+  jobs:
+    finpay_semantic_job:
+      name: finpay_semantic_job_${bundle.target}
+      description: "Job 2: Refresca el modelo dimensional sobre el SQL Warehouse"
+
+      # Solo permite una ejecución a la vez
+      max_concurrent_runs: 1
+
+      # ── Notificaciones ──
+      # Usa el correo que configuraste en tu databricks.yml
+      email_notifications:
+        on_failure:
+          - ${var.alert_email}
+
+      # ⚠️ Nota: No hay bloque "schedule" aquí. 
+      # Este job es invocado dinámicamente por la tarea "trigger_semantic_refresh" del Job 1.
+
+      # ── Tareas del Job ──
+      tasks:
+        - task_key: refresh_materialized_views
+          notebook_task:
+            # Apunta exactamente al notebook exigido en el proyecto
+            notebook_path: ../notebooks/02_refresh_materialized_views.ipynb
+            # Se ejecuta sobre el SQL Warehouse usando la variable de tu databricks.yml
+            warehouse_id: ${var.sql_warehouse_id}
+          timeout_seconds: 1800
+          max_retries: 1

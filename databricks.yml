@@ -1,0 +1,54 @@
+# =============================================================
+# databricks.yml
+# Configuración raíz del Databricks Asset Bundle
+# =============================================================
+
+bundle:
+  name: finpay-lakehouse
+
+variables:
+  alert_email:
+    description: "Email para alertas de fallos de pipeline y jobs"
+    default: "rodrigo_sk22@hotmail.com" 
+
+  sql_warehouse_id:
+    description: "ID del SQL Warehouse para el modelo semántico"
+
+  schedule_pause_status:
+    description: "Estado de la programación: PAUSED o UNPAUSED"
+    default: "PAUSED"
+
+include:
+  - resources/*.yml
+
+targets:
+  # ── Entorno de Desarrollo (DEV) ──
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: "https://adb-7405605058022208.8.azuredatabricks.net/settings/user/developer/access-tokens?o=7405605058022208"
+    variables:
+      alert_email: "rodrigo_sk22@hotmail.com" 
+      schedule_pause_status: "PAUSED"
+      sql_warehouse_id: "a28d593247d7aaf6" 
+
+  # ── Entorno de Producción (PROD) ──
+  prod:
+    mode: production
+    workspace:
+      host: "https://adb-7405605058022208.8.azuredatabricks.net/settings/user/developer/access-tokens?o=7405605058022208"
+    variables:
+      alert_email: "rodrigo_sk22@hotmail.com" 
+      schedule_pause_status: "UNPAUSED" 
+      sql_warehouse_id: "a28d593247d7aaf6" 
+    
+    permissions:
+      - user_name: "rodrigo_sk22@hotmail.com" 
+        level: CAN_MANAGE
+      - group_name: ingenieria
+        level: CAN_MANAGE
+      - group_name: riesgo
+        level: CAN_VIEW
+      - group_name: auditoria
+        level: CAN_VIEW
